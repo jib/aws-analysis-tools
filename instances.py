@@ -133,7 +133,7 @@ def get_instances():
 
     return rv
 
-def run():
+def list_instances():
     table       = Texttable( max_width=0 )
 
     table.set_deco( Texttable.HEADER )
@@ -166,4 +166,5 @@ def run():
         print table.draw()
 
 if __name__ == '__main__':
-    run()
+    list_instances()
+
