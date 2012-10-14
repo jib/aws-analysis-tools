@@ -17,7 +17,7 @@ PP = PrettyPrinter( indent=2 )
 ###################
 
 parser = OptionParser("usage: %prog [options]" )
-parser.add_option(  "-d", "--debug",        default=None, action="store_true",
+parser.add_option(  "-v", "--verbose",      default=None, action="store_true",
                     help="enable debug output" )
 parser.add_option(  "-H", "--no-header",    default=None, action="store_true",
                     help="suppress table header" )
@@ -47,8 +47,8 @@ parser.add_option(  "-Z", "--exclude-zone", default=None,
 ### Logging
 ###################
 
-if options.debug: log_level = logging.DEBUG
-else:             log_level = logging.INFO
+if options.verbose: log_level = logging.DEBUG
+else:               log_level = logging.INFO
 
 logging.basicConfig(stream=sys.stdout, level=log_level)
 logging.basicConfig(stream=sys.stderr, level=(logging.ERROR,logging.CRITICAL))
