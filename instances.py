@@ -39,6 +39,10 @@ parser.add_option(  "-z", "--zone",         default=None,
                     help="Include instances with these zones only (regex)" )
 parser.add_option(  "-Z", "--exclude-zone", default=None,
                     help="Exclude instances with these zones (regex)" )
+parser.add_option(  "-s", "--state",        default=None,
+                    help="Include instances with these states only (regex)" )
+parser.add_option(  "-S", "--exclude-state",default=None,
+                    help="Exclude instances with these states (regex)" )
 
 
 (options, args) = parser.parse_args()
@@ -66,7 +70,8 @@ conn = boto.ec2.connect_to_region( options.region )
 
 regexes = {}
 for opt in [ 'group', 'exclude_group', 'name', 'exclude_name',
-             'type',  'exclude_type',  'zone', 'exclude_zone' ]:
+             'type',  'exclude_type',  'zone', 'exclude_zone',
+             'state', 'exclude_state' ]:
 
     ### we have a regex we should build
     if options.__dict__.get( opt, None ):
@@ -95,6 +100,8 @@ def get_instances():
                 value = i.tags.get( 'Name', '' )
             elif re.search( 'type', re_name ):
                 value = i.instance_type
+            elif re.search( 'state', re_name ):
+                value = i.state
             elif re.search( 'zone', re_name ):
                 ### i.region is an object. i._placement is a string.
                 value = str(i._placement)
@@ -137,12 +144,13 @@ def list_instances():
     table       = Texttable( max_width=0 )
 
     table.set_deco( Texttable.HEADER )
-    table.set_cols_dtype( [ 't', 't', 't', 't', 't', 't' ] )
-    table.set_cols_align( [ 'l', 'l', 'l', 'l', 'l', 'l' ] )
+    table.set_cols_dtype( [ 't', 't', 't', 't', 't', 't', 't', 't' ] )
+    table.set_cols_align( [ 'l', 'l', 'l', 'l', 'l', 'l', 'l', 't' ] )
 
     if not options.no_header:
         ### using add_row, so the headers aren't being centered, for easier grepping
-        table.add_row( [ '# id', 'Name', 'Type', 'Zone', 'Group', 'Volumes' ] )
+        table.add_row(
+            [ '# id', 'Name', 'Type', 'Zone', 'Group', 'State', 'Root', 'Volumes' ] )
 
     instances = get_instances()
     for i in instances:
@@ -157,9 +165,10 @@ def list_instances():
         ### XXX EVERY column in this output had better have a non-zero length
         ### or texttable blows up with 'width must be greater than 0' error
         table.add_row( [ i.id, i.tags.get( 'Name', ' ' ), i.instance_type,
-                         i._placement , i.groups[0].name, volumes or ' ' ] )
+                         i._placement , i.groups[0].name, i.state,
+                         i.root_device_type, volumes or '-' ] )
 
-        #PP.pprint( i.__dict__ )
+        PP.pprint( i.__dict__ )
 
     ### table.draw() blows up if there is nothing to print
     if instances or not options.no_header:
