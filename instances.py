@@ -168,7 +168,7 @@ def list_instances():
                          i._placement , i.groups[0].name, i.state,
                          i.root_device_type, volumes or '-' ] )
 
-        PP.pprint( i.__dict__ )
+        #PP.pprint( i.__dict__ )
 
     ### table.draw() blows up if there is nothing to print
     if instances or not options.no_header:
