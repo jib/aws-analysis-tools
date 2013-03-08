@@ -17,6 +17,7 @@ import yaml
 
 puppet_class_tag_key = 's_classes'
 puppet_class_tag_val_startswith = 's_'  # the classes we care about start with s_*
+puppet_class_tag_ignore = 'params'  # if it has that string, don't care
 facts_yaml = '/mnt/tmp/facts.yaml'
 
 
@@ -46,7 +47,8 @@ if __name__ == '__main__':
     #print instance.tags.get('Name'), instance.id, instance.placement
 
     s_classes = ','.join([str(classes) for classes in puppet['krux_classes'].split()
-                          if classes.startswith(puppet_class_tag_val_startswith)])
+                          if classes.startswith(puppet_class_tag_val_startswith)
+                          and puppet_class_tag_ignore not in classes])
 
     tags_dict.update({puppet_class_tag_key: s_classes})
 
