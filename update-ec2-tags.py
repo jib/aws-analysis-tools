@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# updates instance tag in ec2, with puppet classes
+# updates instance tag in ec2, with puppet classes (and more)
 # run from each instance, periodically.
 #
 # Requires:
@@ -15,8 +15,8 @@ import sys
 import collections
 import yaml
 
-ec2_tag_key = 's_classes'
-ec2_tag_val_startswith = 's_'  # the classes we care about start with s_*
+puppet_class_tag_key = 's_classes'
+puppet_class_tag_val_startswith = 's_'  # the classes we care about start with s_*
 facts_yaml = '/mnt/tmp/facts.yaml'
 
 
@@ -29,6 +29,8 @@ def get_current_region():
 
 
 if __name__ == '__main__':
+    tags_dict = {}
+
     with open(facts_yaml) as fh:
         puppet = yaml.safe_load(fh)
 
@@ -44,6 +46,12 @@ if __name__ == '__main__':
     #print instance.tags.get('Name'), instance.id, instance.placement
 
     s_classes = ','.join([str(classes) for classes in puppet['krux_classes'].split()
-                          if classes.startswith(ec2_tag_val_startswith)])
+                          if classes.startswith(puppet_class_tag_val_startswith)])
 
-    ec2.create_tags([instance.id], {ec2_tag_key: s_classes})
+    tags_dict.update({puppet_class_tag_key: s_classes})
+
+    # also, add the environment tag:
+    tags_dict.update({'environment': puppet.get('environment')})
+
+    # make the API call:
+    ec2.create_tags([instance.id], tags_dict)
