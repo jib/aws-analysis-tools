@@ -50,8 +50,11 @@ if __name__ == '__main__':
 
     tags_dict.update({puppet_class_tag_key: s_classes})
 
-    # also, add the environment tag:
+    # also, add the environment tag
     tags_dict.update({'environment': puppet.get('environment')})
+
+    # cluster name!
+    tags_dict.update({'cluster_name': puppet.get('cluster_name')})
 
     # make the API call:
     ec2.create_tags([instance.id], tags_dict)
