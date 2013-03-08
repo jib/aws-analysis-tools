@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Parallel SSH to a list of nodes, returned from search-ec2-tags.py
 # (must be in your path).
 #
@@ -14,7 +15,6 @@
 #  --connect-timeout    ssh ConnectTimeout option
 #  --timeout            amount of time to wait, before killing the ssh
 #
-#!/usr/bin/env python
 import sys
 import time
 import subprocess
@@ -63,7 +63,7 @@ def remove_ssh_warnings(stderr, options):
 
 
 def query(string):
-    stdout, stderr = subprocess.Popen(['search-ec2-tags.py', string],
+    stdout, stderr = subprocess.Popen(['search-ec2-tags.py'] + string.split(),
                                       stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
     print "matched the following hosts: %s" % ', '.join(stdout.splitlines())
     if stderr:
