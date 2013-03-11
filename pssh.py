@@ -140,6 +140,6 @@ if __name__ == '__main__':
             index = 0
 
         if ticks > options.timeout:
-            print hilite("\nSorry, the following hosts took too long, and I gave up: %s\n" % ','.join(hosts), options, 'red')
             [bad.terminate() for bad in procs]
+            print hilite("\nSorry, the following hosts took too long, and I gave up: %s\n" % ','.join(hosts), options, 'red')
             break
