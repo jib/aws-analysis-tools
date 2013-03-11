@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env kpython
 # Parallel SSH to a list of nodes, returned from search-ec2-tags.py
 # (must be in your path).
 #
@@ -63,7 +63,7 @@ def remove_ssh_warnings(stderr, options):
 
 
 def query(string):
-    stdout, stderr = subprocess.Popen(['search-ec2-tags.py'] + string.split(),
+    stdout, stderr = subprocess.Popen(['kpython', '/usr/local/bin/search-ec2-tags.py'] + string.split(),
                                       stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
     print "matched the following hosts: %s" % ', '.join(stdout.splitlines())
     if stderr:
