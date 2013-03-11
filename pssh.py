@@ -101,7 +101,7 @@ if __name__ == '__main__':
         hosts = [host.strip() for host in hosts.split(',')]
 
     for host in hosts:
-        proc = subprocess.Popen("ssh -oConnectTimeout=%s %s '%s'" %
+        proc = subprocess.Popen("ssh -oStrictHostKeyChecking=no -oConnectTimeout=%s %s '%s'" %
                                 (options.connect_timeout, host, command), shell=True,
                                 stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         procs.append(proc)
