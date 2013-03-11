@@ -108,13 +108,11 @@ if __name__ == '__main__':
 
     index = 0
     ticks = 0
-    batch = 0
     while 1:
         # nothing has returned, the first iteration, I bet.
         if ticks < 2:
             time.sleep(1)
         ticks += 1
-        batch += 1
         host = hosts[index]
         proc = procs[index]
 
