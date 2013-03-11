@@ -108,9 +108,13 @@ if __name__ == '__main__':
 
     index = 0
     ticks = 0
+    batch = 0
     while 1:
-        time.sleep(1)
+        # nothing has returned, the first iteration, I bet.
+        if ticks < 2:
+            time.sleep(1)
         ticks += 1
+        batch += 1
         host = hosts[index]
         proc = procs[index]
 
@@ -128,6 +132,7 @@ if __name__ == '__main__':
 
         elif ticks > 2:
             print "waiting on these hosts, still: %s" % ', '.join(hosts)
+            time.sleep(1)
 
         if len(procs) > index + 1:
             index += 1
@@ -140,5 +145,3 @@ if __name__ == '__main__':
             print hilite("\nSorry, the following hosts took too long, and I gave up: %s\n" % ','.join(hosts), options, 'red')
             [bad.terminate() for bad in procs]
             break
-
-        time.sleep(1)
