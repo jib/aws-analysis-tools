@@ -77,7 +77,7 @@ if __name__ == '__main__':
     parser.add_option("--query", help='the string to pass search-ec2-tags.py', default=False)
     parser.add_option("--host", help='comma-sep list of hosts to ssh to', default=False)
     parser.add_option("--timeout", help='amount of time to wait before killing the ssh',
-                      default=60)
+                      default=120)
     parser.add_option("--connect-timeout", help='ssh ConnectTimeout option',
                       default=10)
     parser.add_option("--no-color", action="store_true", help="disable or enable color",
