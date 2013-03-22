@@ -112,7 +112,6 @@ if __name__ == '__main__':
         # nothing has returned, the first iteration, I bet.
         if ticks < 2:
             time.sleep(1)
-            ticks += 1
         host = hosts[index]
         proc = procs[index]
 
@@ -131,7 +130,7 @@ if __name__ == '__main__':
         elif ticks > 2:
             print "waiting on these hosts, still: %s" % ', '.join(hosts)
             time.sleep(1)
-            ticks += 1
+        ticks += 1
 
         if len(procs) > index + 1:
             index += 1
