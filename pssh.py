@@ -18,6 +18,7 @@
 import sys
 import time
 import subprocess
+import select
 from optparse import OptionParser
 
 
@@ -77,7 +78,7 @@ if __name__ == '__main__':
     parser.add_option("--query", help='the string to pass search-ec2-tags.py', default=False)
     parser.add_option("--host", help='comma-sep list of hosts to ssh to', default=False)
     parser.add_option("--timeout", help='amount of time to wait before killing the ssh',
-                      default=120)
+                      default=240)
     parser.add_option("--connect-timeout", help='ssh ConnectTimeout option',
                       default=10)
     parser.add_option("--no-color", action="store_true", help="disable or enable color",
@@ -90,7 +91,7 @@ if __name__ == '__main__':
     procs = []
     command = args[0]
 
-    hosts = ['ops-dev005.krxd.net', 'ops-dev001.krxd.net']
+    hosts = ['ops-dev005.krxd.net', ]
     if options.query:
         hosts = query(options.query)
         if not hosts:
@@ -108,14 +109,19 @@ if __name__ == '__main__':
 
     index = 0
     ticks = 0
+    too_long = False
     while 1:
-        # nothing has returned, the first iteration, I bet.
+        # nothing has returned, the first few secs, I bet.
         if ticks < 2:
             time.sleep(1)
+        if ticks > 60:
+            too_long = True
+
         host = hosts[index]
         proc = procs[index]
 
-        if proc.poll() is not None:
+        # has it finished? go ahead and print the host and results.
+        if not too_long and proc.poll() is not None:
             stdout, stderr = proc.communicate()
             print "[%s]" % hilite(host, options, bold=True)
             if stdout:
@@ -127,9 +133,56 @@ if __name__ == '__main__':
             del procs[index]
             del hosts[index]
 
-        elif ticks > 2:
+        elif not too_long and (ticks > 1) and (ticks % 5 == 0):
+            # only print "waiting still.." every 5 sec.
             print "waiting on these hosts, still: %s" % ', '.join(hosts)
             time.sleep(1)
+
+        if too_long:
+            # it has been too long. print stdout/stderr one line at a time, so people
+            # know what's happening, and aren't left waiting for timeout (and
+            # then they never see stdout/stderr).
+            print "%s (responding slowly - here is the output so far)" % \
+                hilite('[' + host + ']', options, bold=True)
+
+            while 1:
+                if proc.poll() is not None:
+                    break
+
+                if select.select([proc.stdout], [], [], 0)[0]:
+                    print "STDOUT: \n"
+                while select.select([proc.stdout], [], [], 0)[0]:
+                    stdout = proc.stdout.readline()
+                    sys.stdout.write(hilite(stdout, options, 'green', False))
+
+                while select.select([proc.stderr], [], [], 0)[0]:
+                    print "STDERR: \n"
+                    stderr = remove_ssh_warnings(proc.stderr.readline(), options)
+                    sys.stdout.write(hilite(stderr, options, 'red', False))
+
+                if ticks > options.timeout:
+                    break
+                elif proc.poll() is not None:
+                    break
+                else:
+                    time.sleep(1)
+
+            # one final time, to flush buffers, if the call won't block (process has exited)
+            if proc.poll() is not None:
+                stdout = '\n'.join(proc.stdout.readlines())
+                if stdout:
+                    print "STDOUT: \n%s" % hilite(stdout, options,
+                                                  'green', False)
+                stderr = '\n'.join(proc.stderr.readlines())
+                if stderr:
+                    print "STDERR: \n%s" % hilite(stderr, options,
+                                                  'red', False)
+
+            # remove from queue
+            if proc.poll() is not None:
+                del procs[index]
+                del hosts[index]
+
         ticks += 1
 
         if len(procs) > index + 1:
