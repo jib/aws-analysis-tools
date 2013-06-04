@@ -128,7 +128,7 @@ if __name__ == '__main__':
                 print "STDOUT: \n%s" % hilite(stdout, options, 'green', False)
 
             stderr = remove_ssh_warnings(stderr, options)
-            if stderr:
+            if stderr and len(stderr) > 1:
                 print "STDERR: \n%s" % hilite(stderr, options, 'red', False)
             del procs[index]
             del hosts[index]
@@ -156,8 +156,10 @@ if __name__ == '__main__':
                     sys.stdout.write(hilite(stdout, options, 'green', False))
 
                 while select.select([proc.stderr], [], [], 0)[0]:
-                    print "STDERR: \n"
                     stderr = remove_ssh_warnings(proc.stderr.readline(), options)
+                    if stderr is None:
+                        break
+                    print "STDERR: \n"
                     sys.stdout.write(hilite(stderr, options, 'red', False))
 
                 if ticks > options.timeout:
