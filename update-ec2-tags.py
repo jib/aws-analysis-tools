@@ -38,10 +38,11 @@ if __name__ == '__main__':
     regions = boto.ec2.regions()
 
     region = [region for region in regions if get_current_region() in region.name][0]
+    instance_id = boto.utils.get_instance_metadata()['instance-id']
 
     ec2 = region.connect()
 
-    res = ec2.get_all_instances(filters={'instance-id': puppet.get('instance_id')})[0]
+    res = ec2.get_all_instances(filters={'instance-id': instance_id})[0]
     instance = res.instances[0]
 
     #print instance.tags.get('Name'), instance.id, instance.placement
