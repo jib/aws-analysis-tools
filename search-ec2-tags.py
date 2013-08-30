@@ -71,6 +71,9 @@ if __name__ == '__main__':
                 query['tag-value'] = query.get('tag-value') + ['*' + string[0] + '*']
 
     for region in regions:
+        # we don't have access to gov regions in AWS:
+        if '-gov-' in region.name:
+            continue
         ec2 = region.connect()
 
         for res in ec2.get_all_instances(filters=query):
