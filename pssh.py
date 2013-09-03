@@ -101,6 +101,10 @@ if __name__ == '__main__':
     if options.host:
         hosts = [host.strip() for host in hosts.split(',')]
 
+    if len(hosts) == 0:
+        print hilite("Sorry, search-ec2-tags.py returned zero results.", options, 'red')
+        sys.exit(1)
+
     for host in hosts:
         proc = subprocess.Popen("ssh -oStrictHostKeyChecking=no -oConnectTimeout=%s %s '%s'" %
                                 (options.connect_timeout, host, command), shell=True,
