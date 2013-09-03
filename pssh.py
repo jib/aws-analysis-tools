@@ -68,7 +68,7 @@ def query(string):
                                       stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
     print "matched the following hosts: %s" % ', '.join(stdout.splitlines())
     if stderr:
-        return None
+        return "Error: %s" % stderr
     return stdout.splitlines()
 
 
@@ -91,10 +91,10 @@ if __name__ == '__main__':
     procs = []
     command = args[0]
 
-    hosts = ['ops-dev005.krxd.net', ]
+    hosts = []
     if options.query:
         hosts = query(options.query)
-        if not hosts:
+        if hosts.startswith("Error"):
             print hilite("Sorry, search-ec2-tags.py returned an error:\n %s" % hosts, options, 'red')
             sys.exit(1)
 
