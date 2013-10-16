@@ -94,7 +94,7 @@ if __name__ == '__main__':
     hosts = []
     if options.query:
         hosts = query(options.query)
-        if hosts[0].startswith("Error"):
+        if len(hosts) > 0 and hosts[0].startswith("Error"):
             print hilite("Sorry, search-ec2-tags.py returned an error:\n %s" % hosts, options, 'red')
             sys.exit(1)
 
